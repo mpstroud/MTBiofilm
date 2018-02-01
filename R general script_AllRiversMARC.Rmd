@@ -1,0 +1,34 @@
+---
+title: "Data Analysis_AllRiversMARC"
+author: "M. Peipoch"
+date: "May 9, 2017"
+output: pdf_document
+---
+
+```{r}
+library(betapart)
+library(vegan)
+library(ggplot2)
+library(plyr)
+library(gridExtra)
+library(GUniFrac)
+library(fields)
+library(ade4)
+library(xlsx)
+library(phyclust)
+library(ape)
+library(ecodist)
+library(varComp)
+library(nlme)
+
+```
+
+```{r}
+enviro<- data.frame()
+enviro<- Environmental_Data_MARC_project
+
+species<- data.frame()
+species<- Species_Data_MARC_project
+
+```
+

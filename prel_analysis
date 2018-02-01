@@ -1,0 +1,81 @@
+getwd()
+enviro = read.csv("enviro.csv")
+summary(enviro)
+enviro <- enviro[-c(366),] #missing row at the end of data frame was removed
+summary(enviro)
+
+prova  plot(enviro$oxygen,enviro$temperature)
+
+#separate surface and hyporheic water
+      surf_enviro = subset.data.frame(enviro, water_type=="surface", select = -water_type)
+      hypo_enviro = subset.data.frame(enviro, water_type=="hyporheic", select = -water_type)
+
+#separate by river, zone, habitat (change specs accordingly)
+      by_river = subset.data.frame(surf_enviro, river=="Madison", select = -river)
+      by_zone = subset.data.frame(surf_enviro, zone=="OC", select = -zone)
+      by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
+
+
+#looped groups for repetitive operations
+      df <- surf_enviro # or other
+       IDs<-unique(df$river)# or other
+       results<- data.frame(matrix(0,ncol=1,nrow=10)) # or other
+          for (i in 1:length(IDs)){
+          temp <- df[df$river==IDs[i],]
+          results[i,1] <- mean(temp[,15]) # or other
+          }
+      names<-as.data.frame(IDs)
+      results<-cbind(results,names)
+      results
+
+
+#if very basic operations are needed
+tapply(surf_enviro$doc, surf_enviro$river, mean)
+
+
+#fancy density plots---INTRODUCTION PLOTS?
+r["CRAN"] <- "http://cran.cnr.berkeley.edu/"
+install.packages(c('tidyverse', 'readr','ggjoy','ggplot2'))
+library(tidyverse)
+library(readr)
+library(ggjoy)
+library(ggplot2)
+
+tempdata <- subset(surf_enviro, select=c(river, zone,chl))
+colnames(tempdata) <- c("river","zone", "var")
+tempdata$zonemod<- ifelse(tempdata$zone=="MC", (tempdata$var*-1)-10, tempdata$var+10)
+
+ggplot(tempdata, aes(x = zonemod, y = river, group=river)) +
+        geom_joy_gradient(data=filter(tempdata, zone=="MC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#0066CC", alpha=0.9,bandwidth=4) +
+        geom_joy_gradient(data=filter(tempdata, zone=="OC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#99CC33", alpha=0.9,bandwidth=4) +
+        theme_joy() +
+        #theme(axis.text.y = element_blank()) +
+        scale_x_continuous(limits=c(-100, 100),expand = c(0.01, 0)) +
+        #scale_y_continuous(breaks=c(seq(2010,1970,-5))) +
+        ggtitle("By zone across rivers") +
+        ylab("river") +
+        xlab("Distribution of DOC")
+
+
+#Diversity vs niche plot
+library(vegan)
+tempdata <- surf_enviro[,2:22]
+tempdata = subset.data.frame(tempdata, select = c(-zone,-site,-habitat,-Lat,-Lon,-m,-oxygen_sat,-conductivity,-time))
+
+df <- tempdata # or other
+ IDs<-unique(df$river)# or other
+ results<- data.frame(matrix(0,ncol=4,nrow=10)) # or other
+    for (i in 1:length(IDs)){
+    temp <- df[df$river==IDs[i],]
+    temp<- na.omit(temp)
+       temp<- as.vector(vegdist(temp[,2:12], method="mahalanobis")) #using Mahalonobis distance
+       temp<-as.data.frame(temp)
+         results[i,1] <- mean(temp$temp)
+         results[i,2] <- sd(temp$temp)
+         results[i,3] <- as.numeric(nrow(temp))
+         results[i,4] <- sd(temp$temp)/sqrt(as.numeric(nrow(temp)))
+    }
+
+names<-as.data.frame(IDs)
+results<-cbind(results,names)
+results
