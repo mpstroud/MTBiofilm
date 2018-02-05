@@ -11,7 +11,7 @@ enviro = read.csv("enviro.csv")
 summary(enviro)
 enviro <- enviro[-c(366),] #missing row at the end of data frame was removed
 summary(enviro)
-plot(enviro$temperature, enviro$oxygen)
+plot(enviro$temperature, enviro$srp)
 
 #separate surface and hyporheic water
 surf_enviro = subset.data.frame(enviro, water_type=="surface", select = -water_type)
