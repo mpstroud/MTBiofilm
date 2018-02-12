@@ -3,7 +3,7 @@ title: "coocurrence"
 output: html_document
 ---
 
-testing the seas-package
+testing seas-package
 ```{r setup, include=FALSE}
 install.packages("bipartite")
 library(bipartite)
