@@ -3,7 +3,7 @@ title: "Data analysis"
 output: pdf_document
 ---
 
-data input
+data inputs
 ```{r}
 
 getwd()
