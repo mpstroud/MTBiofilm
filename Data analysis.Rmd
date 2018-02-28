@@ -42,7 +42,7 @@ tapply(surf_enviro$doc, surf_enviro$river, mean) #if very basic operations are n
 
 ```
 
-fancy density plots---INTRODUCTION PLOTS?
+fancy density plots---INTRODUCTION PLOTS? done without floodplain standarization
 ```{r}
 library(tidyverse)
 library(readr)
@@ -65,6 +65,30 @@ ggplot(tempdata, aes(x = zonemod, y = river, group=river)) +
         ylab("river") +
         xlab("Distribution of DOC") 
 ```
+
+create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per floodplain.
+Should modify the fancy plot to show this per river and variable
+```{r}
+
+river = subset.data.frame(surf_enviro, river=="Big Hole", select = -river)
+river = river[,c(8:19)]
+river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
+    for (i in 1:12){ 
+    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
+    names(river2) <- colnames(river)
+    } 
+
+boxplot(river2)
+```
+
+
+
+
+
+
+
+
+
 
 Diversity vs niche plot--need to generate a metric of volume n-dimensional. with ordination results and taking the radius as the average range of all or subset of dimensions.(selected dimensions must have similar variables with high loadings)
 
