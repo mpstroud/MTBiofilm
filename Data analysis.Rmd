@@ -42,7 +42,25 @@ tapply(surf_enviro$doc, surf_enviro$river, mean) #if very basic operations are n
 
 ```
 
-fancy density plots---INTRODUCTION PLOTS? done without floodplain standarization
+create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per floodplain.
+Should modify the fancy plot to show this per river and variable
+```{r}
+
+dset = subset.data.frame(surf_enviro, river=="Clark fork", select = -river)
+river = dset[,c(8:19)]
+river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
+    for (i in 1:ncol(river)){ 
+    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
+    names(river2) <- colnames(river)
+    } 
+sd_CF<-river2
+
+sd_data_temp<- rbind(sd_BT,sd_BO,sd_MA,sd_CF,sd_BH,sd_BN,sd_TN,sd_MI,sd_MK,sd_SW)
+tempdata <- subset(surf_enviro, select=c(river, zone)) 
+stdata<- cbind(tempdata,sd_data_temp) #contains al enviro variables standarized by floodplain
+```
+
+density plots---INTRODUCTION PLOTS? done without floodplain standarization
 ```{r}
 library(tidyverse)
 library(readr)
@@ -50,36 +68,24 @@ library(ggjoy)
 library(ggplot2)
 ```
 ```{r}
-tempdata <- subset(surf_enviro, select=c(river, zone,chl)) 
+stdata<-as.data.frame(stdata)
+tempdata <- subset(stdata, select=c(river, zone,nitrate)) 
 colnames(tempdata) <- c("river","zone", "var")
-tempdata$zonemod<- ifelse(tempdata$zone=="MC", (tempdata$var*-1)-10, tempdata$var+10)
+tempdata$zonemod<- ifelse(tempdata$zone=="MC", (tempdata$var*-1)-10, (tempdata$var*1)+10)
+
+ sapply(tempdata, class)
+
+
 
 ggplot(tempdata, aes(x = zonemod, y = river, group=river)) +
         geom_joy_gradient(data=filter(tempdata, zone=="MC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#0066CC", alpha=0.9,bandwidth=4) +
         geom_joy_gradient(data=filter(tempdata, zone=="OC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#99CC33", alpha=0.9,bandwidth=4) +
         theme_joy() +
-        #theme(axis.text.y = element_blank()) +
-        scale_x_continuous(limits=c(-100, 100),expand = c(0.01, 0)) +
-        #scale_y_continuous(breaks=c(seq(2010,1970,-5))) +
-        ggtitle("By zone across rivers") + 
-        ylab("river") +
-        xlab("Distribution of DOC") 
+        scale_x_continuous(limits=c(-50, 50),expand = c(0.01, 0)) 
+       
 ```
 
-create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per floodplain.
-Should modify the fancy plot to show this per river and variable
-```{r}
 
-river = subset.data.frame(surf_enviro, river=="Big Hole", select = -river)
-river = river[,c(8:19)]
-river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
-    for (i in 1:12){ 
-    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
-    names(river2) <- colnames(river)
-    } 
-
-boxplot(river2)
-```
 
 
 
