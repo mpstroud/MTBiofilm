@@ -46,14 +46,14 @@ create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per f
 Should modify the fancy plot to show this per river and variable
 ```{r}
 
-dset = subset.data.frame(surf_enviro, river=="Clark fork", select = -river)
+dset = subset.data.frame(surf_enviro, river=="Swan", select = -river)
 river = dset[,c(8:19)]
 river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
     for (i in 1:ncol(river)){ 
     river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
     names(river2) <- colnames(river)
     } 
-sd_CF<-river2
+sd_SW<-river2
 
 sd_data_temp<- rbind(sd_BT,sd_BO,sd_MA,sd_CF,sd_BH,sd_BN,sd_TN,sd_MI,sd_MK,sd_SW)
 tempdata <- subset(surf_enviro, select=c(river, zone)) 
@@ -64,37 +64,47 @@ density plots---INTRODUCTION PLOTS? done without floodplain standarization
 ```{r}
 library(tidyverse)
 library(readr)
-library(ggjoy)
+library(ggridges)
 library(ggplot2)
+library(forcats)
+library(magrittr)
 ```
 ```{r}
-stdata<-as.data.frame(stdata)
-tempdata <- subset(stdata, select=c(river, zone,nitrate)) 
+tempdata <- subset(stdata, select=c(river, zone,nitrate)) #stdata from previous section
 colnames(tempdata) <- c("river","zone", "var")
-tempdata$zonemod<- ifelse(tempdata$zone=="MC", (tempdata$var*-1)-10, (tempdata$var*1)+10)
+tempdata$zonemod<- ifelse(tempdata$zone=="MC", tempdata$var-2.5, tempdata$var+2.5)
+tempdata$river_mod <- factor(tempdata$river, levels = c("Swan","Bitterroot","Clark fork","Boulder","Madison","Big Hole","Big Horn", "Tongue", "Missouri", "Milk"))
 
- sapply(tempdata, class)
-
-
-
-ggplot(tempdata, aes(x = zonemod, y = river, group=river)) +
-        geom_joy_gradient(data=filter(tempdata, zone=="MC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#0066CC", alpha=0.9,bandwidth=4) +
-        geom_joy_gradient(data=filter(tempdata, zone=="OC"), scale = 8, size = 0.15, rel_min_height = 0.01, fill="#99CC33", alpha=0.9,bandwidth=4) +
-        theme_joy() +
-        scale_x_continuous(limits=c(-50, 50),expand = c(0.01, 0)) 
-       
+tempdata %>%
+  ggplot(aes(y = river_mod)) +
+  geom_density_ridges(aes(x = zonemod, fill = paste(river, zone)), 
+           alpha = 0.8, bandwidth=0.4, 
+           scale=7, color = "black", rel_min_height=0.00001,
+           from = -6, to = 9) +
+  labs(x = "var", y = "river", title = "plot") +
+  scale_x_continuous(expand = c(0.1, 0)) +
+  scale_fill_manual(values=c("#99CCFF", "#99CC66","#0066CC", "#99CC33","#99CCFF", "#99CC66","#99CCFF", "#99CC66", "#0066CC", "#99CC33","#0066CC", "#99CC33","#99CCFF", "#99CC66","#0066CC", "#99CC33","#0066CC", "#99CC33","#99CCFF", "#99CC66"))+
+  theme_ridges(grid = TRUE)
 ```
 
 
 
+per zone/habitat exploration
 
-
-
-
-
-
-
-
+```{r}
+df <- stdata # or other
+ IDs<-unique(df$zone)# or other
+ results<- data.frame(matrix(0,ncol=2,nrow=2)) # or other
+    for (i in 1:length(IDs)){ 
+    temp <- df[df$zone==IDs[i],]
+    results[i,1] <- mean(temp[,3],na.rm=TRUE) # or other
+    results[i,2] <- sd(temp[,3],na.rm=TRUE) # or other
+    }
+names<-as.data.frame(IDs)
+results<-cbind(results,names)
+colnames(results)<-c("zscores","sd","zone")
+ggplot(results, aes(x=zone, y=zscores)) + geom_bar(stat="identity")
+```
 
 Diversity vs niche plot--need to generate a metric of volume n-dimensional. with ordination results and taking the radius as the average range of all or subset of dimensions.(selected dimensions must have similar variables with high loadings)
 
