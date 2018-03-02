@@ -18,7 +18,7 @@ surf_enviro = subset.data.frame(enviro, water_type=="surface", select = -water_t
 hypo_enviro = subset.data.frame(enviro, water_type=="hyporheic", select = -water_type)
 
 #separate by river, zone, habitat (change specs accordingly)
-by_river = subset.data.frame(surf_enviro, river=="Madison", select = -river)
+by_river = subset.data.frame(surf_enviro, river=="Boulder", select = -river)
 by_zone = subset.data.frame(surf_enviro, zone=="OC", select = -zone)
 by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
 
@@ -46,13 +46,38 @@ create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per f
 Should modify the fancy plot to show this per river and variable
 ```{r}
 
-dset = subset.data.frame(surf_enviro, river=="Swan", select = -river)
+rivers <- c("Swan","Bitterroot","Clark fork","Boulder","Madison","Big Hole","Big Horn", "Tongue", "Missouri", "Milk")
+tempdata <- subset(surf_enviro, select=c(river, zone)) 
+refined<- cbind(tempdata,surf_enviro[,c(9:20)])
+
+lapply(rivers, standi, data = refined)
+
+standi<-function(x){
+    scale(data=subset.data.frame(refined, river==rivers[[x]], select = c(-river, -zone)), 
+          center = TRUE, scale = TRUE)
+}
+standi("Madison")
+
+                 a=as.numeric(nrow(x),b=as.numeric(ncol(x)),data=refined)){
+  river<- data.frame(matrix(0,ncol=b,nrow=a)) 
+  river2<- data.frame(matrix(0,ncol=b,nrow=a)) # or other
+  
+}
+
+  river = x[,c(8:19)]
+    for (i in 1:ncol(river)){ 
+    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
+    names(river2) <- colnames(river)
+    } }
+
+dset = subset.data.frame(x, river=="Boulder", select = -river)
 river = dset[,c(8:19)]
 river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
     for (i in 1:ncol(river)){ 
     river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
     names(river2) <- colnames(river)
     } 
+
 sd_SW<-river2
 
 sd_data_temp<- rbind(sd_BT,sd_BO,sd_MA,sd_CF,sd_BH,sd_BN,sd_TN,sd_MI,sd_MK,sd_SW)
