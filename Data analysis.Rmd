@@ -47,43 +47,17 @@ Should modify the fancy plot to show this per river and variable
 ```{r}
 
 rivers <- c("Swan","Bitterroot","Clark fork","Boulder","Madison","Big Hole","Big Horn", "Tongue", "Missouri", "Milk")
-tempdata <- subset(surf_enviro, select=c(river, zone)) 
-refined<- cbind(tempdata,surf_enviro[,c(9:20)])
+    
 
-lapply(rivers, standi, data = refined)
-
-standi<-function(x){
-    scale(data=subset.data.frame(refined, river==rivers[[x]], select = c(-river, -zone)), 
-          center = TRUE, scale = TRUE)
-}
-standi("Madison")
-
-                 a=as.numeric(nrow(x),b=as.numeric(ncol(x)),data=refined)){
-  river<- data.frame(matrix(0,ncol=b,nrow=a)) 
-  river2<- data.frame(matrix(0,ncol=b,nrow=a)) # or other
-  
-}
-
-  river = x[,c(8:19)]
-    for (i in 1:ncol(river)){ 
-    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
-    names(river2) <- colnames(river)
-    } }
-
-dset = subset.data.frame(x, river=="Boulder", select = -river)
-river = dset[,c(8:19)]
-river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
-    for (i in 1:ncol(river)){ 
-    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
-    names(river2) <- colnames(river)
+df_list <- split(surf_enviro[,9:20], as.factor(surf_enviro$river))
+df_list2 <- list()
+for (i in 1:length(df_list)){ 
+    df_list2[[i]] <- scale(df_list[[i]], center = TRUE, scale = TRUE)
     } 
+ st_data<-as.data.frame(df_list2[3]) #contains al enviro variables standarized by floodplain
 
-sd_SW<-river2
-
-sd_data_temp<- rbind(sd_BT,sd_BO,sd_MA,sd_CF,sd_BH,sd_BN,sd_TN,sd_MI,sd_MK,sd_SW)
-tempdata <- subset(surf_enviro, select=c(river, zone)) 
-stdata<- cbind(tempdata,sd_data_temp) #contains al enviro variables standarized by floodplain
 ```
+
 
 density plots---INTRODUCTION PLOTS? done without floodplain standarization
 ```{r}
