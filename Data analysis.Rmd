@@ -18,7 +18,7 @@ surf_enviro = subset.data.frame(enviro, water_type=="surface", select = -water_t
 hypo_enviro = subset.data.frame(enviro, water_type=="hyporheic", select = -water_type)
 
 #separate by river, zone, habitat (change specs accordingly)
-by_river = subset.data.frame(surf_enviro, river=="Madison", select = -river)
+by_river = subset.data.frame(surf_enviro, river=="Boulder", select = -river)
 by_zone = subset.data.frame(surf_enviro, zone=="OC", select = -zone)
 by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
 
@@ -40,19 +40,18 @@ create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per f
 Should modify the fancy plot to show this per river and variable
 ```{r}
 
-dset = subset.data.frame(surf_enviro, river=="Swan", select = -river)
-river = dset[,c(8:19)]
-river2<- data.frame(matrix(0,ncol=ncol(river),nrow=nrow(river))) # or other
-    for (i in 1:ncol(river)){ 
-    river2[,i] <- scale(river[,i], center = TRUE, scale = TRUE)
-    names(river2) <- colnames(river)
-    } 
-sd_SW<-river2
+rivers <- c("Swan","Bitterroot","Clark fork","Boulder","Madison","Big Hole","Big Horn", "Tongue", "Missouri", "Milk")
+    
 
-sd_data_temp<- rbind(sd_BT,sd_BO,sd_MA,sd_CF,sd_BH,sd_BN,sd_TN,sd_MI,sd_MK,sd_SW)
-tempdata <- subset(surf_enviro, select=c(river, zone)) 
-stdata<- cbind(tempdata,sd_data_temp) #contains al enviro variables standarized by floodplain
+df_list <- split(surf_enviro[,9:20], as.factor(surf_enviro$river))
+df_list2 <- list()
+for (i in 1:length(df_list)){ 
+    df_list2[[i]] <- scale(df_list[[i]], center = TRUE, scale = TRUE)
+    } 
+ st_data<-as.data.frame(df_list2[3]) #contains al enviro variables standarized by floodplain
+
 ```
+
 
 density plots---INTRODUCTION PLOTS? done without floodplain standarization
 ```{r}
