@@ -1,0 +1,15 @@
+---
+title: "rarefaction"
+output: html_document
+---
+
+```{r}
+data(BCI)
+library(vegan)
+data <- read.table("clipboard", header=T,sep="\t")
+rar<- rrarefy(data,10000)
+rar<-as.data.frame(as.matrix(rar))
+rarefied_table<-write.csv(rar,file="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/rarefied_table.csv")
+
+```
+

@@ -1,0 +1,71 @@
+---
+title: "Data analysis"
+output: pdf_document
+---
+
+data input
+```{r}
+
+getwd() 
+enviro = read.csv("enviro.csv")
+summary(enviro)
+enviro <- enviro[-c(366),] #missing row at the end of data frame was removed
+summary(enviro)
+plot(enviro$temperature, enviro$srp)
+
+#separate surface and hyporheic water
+surf_enviro = subset.data.frame(enviro, water_type=="surface", select = -water_type)
+hypo_enviro = subset.data.frame(enviro, water_type=="hyporheic", select = -water_type)
+
+#separate by river, zone, habitat (change specs accordingly)
+by_river = subset.data.frame(surf_enviro, river=="Bitterroot", select = -river)
+by_zone = subset.data.frame(surf_enviro, zone=="MC", select = -zone)
+by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
+
+
+```
+
+looped groups for repetitive operations
+```{r}
+df <- surf_enviro # or other
+ IDs<-unique(df$river)# or other
+ results<- data.frame(matrix(0,ncol=1,nrow=10)) # or other
+    for (i in 1:length(IDs)){ 
+    temp <- df[df$river==IDs[i],]
+    results[i,1] <- mean(temp[,15]) # or other
+    }
+names<-as.data.frame(IDs)
+results<-cbind(results,names)
+results
+
+tapply(surf_enviro$tnp, surf_enviro$river, mean, na.rm=T) #if very basic operations are needed
+
+```
+
+using package 'hydrostats' te get baseflow and colwells statistics for the 1970-2010 period for each river system
+```{r}
+library(hydrostats)
+```
+
+```{r}
+data <-read.table("clipboard", header = T, sep = "\t")
+colnames(data)<-c("Date","Q")
+data<-ts.format(data)
+Colwells(data)
+out<- baseflows(data, ts = "annual")
+mean(0.0283168*out$bf)
+sd(0.0283168*out$bf)
+```
+
+
+```{r}
+data <-read.table("clipboard", header = T, sep = "\t")
+colnames(data)<-c("Date","Q")
+data<-ts.format(data)
+out<- Colwells(data)
+out
+
+data(Acheron)
+Acheron<-ts.format(Acheron)
+                   
+```

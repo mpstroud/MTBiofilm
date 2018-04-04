@@ -1,0 +1,87 @@
+---
+title: "networks"
+output: html_document
+---
+
+```{r}
+#necessary packages:
+if (!require(data.table)) library("data.table")
+if (!require(dplyr)) library("dplyr")
+if (!require(igraph)) library("igraph")
+if (!require(Hmisc)) library("Hmisc")
+if (!require(rgexf)) library("rgexf")
+
+#intro OTU table: all numeric, OTUnames as columns
+getwd() 
+data = read.csv("genus_rarefied.csv")
+data <-read.table("clipboard", header = T, sep = "\t") #ONLY in case need to copy/paste dataset in
+
+#cor fucntion to generate all potential correlations between OTUs
+coc<- rcorr(as.matrix(data), type=c("spearman")) 
+coc$r<-abs(coc$r) #take negative values out to apply a cutoff of >0.65 Spearman rank correlation
+cocr<-as.data.frame(coc$r)
+cocp<-as.data.frame(coc$P)
+
+subcoc<-list()
+nom<-as.vector(colnames(cocr))
+for(i in 1:ncol(cocr)){
+  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.6 & cocp[,i] < 0.01, select = c(nom[[i]]))
+} #this will generate a list of as many elements as OTUs, each element contains a vector with only OTU correlations above the predetermined cutoff (r=0.6 and p-value 0.5 here)
+
+subcoc2<- matrix(0,ncol=3,nrow=0)
+subcoc2<-data.frame(subcoc2)
+colnames(subcoc2) <- c("sp1", "cor","sp2")
+for(i in 1:length(subcoc)){
+  temp<-as.data.frame(subcoc[[i]])
+  temp<- setDT(temp, keep.rownames = TRUE)[]
+  v <- rep(colnames(temp[,2]), nrow(temp))  
+  temp<- mutate(temp, dr = v)
+  colnames(temp) <- c("sp1", "cor","sp2")
+subcoc2<-rbind(subcoc2,temp)
+remove(temp)
+} #resulting dataset contains edge information for network
+
+links<-subcoc2[,c("sp2","sp1","cor")]
+colnames(links)<-c("from", "to","weight")
+nodes <-as.data.frame(unique(subcoc2[,3]))
+colnames(nodes)<-c("id") #final edits to node and edge datasets
+
+nrow(nodes); length(unique(nodes$id))
+nrow(links); nrow(unique(links[,c("from", "to")]))
+
+#build the network
+g <- graph_from_data_frame(d=links, vertices=nodes, directed=T) 
+plot(g, edge.arrow.size=.4,vertex.label=NA)
+
+#export to gephi----code from https://gopalakrishna.palem.in/iGraphExport.html
+# Converts the given igraph object to GEXF format and saves it at the given filepath location
+#     g: input igraph object to be converted to gexf format
+#     filepath: file location where the output gexf file should be saved
+#
+saveAsGEXF = function(g, filepath="proba.gexf")
+{
+  require(igraph)
+  require(rgexf)
+  if(is.null(V(g)$label))
+    V(g)$label <- as.character(V(g))
+  if(is.null(E(g)$weight))
+    E(g)$weight <- rep.int(1, ecount(g))
+  
+  nodes <- data.frame(cbind(V(g), V(g)$label))
+  edges <- t(Vectorize(get.edge, vectorize.args='id')(g, 1:ecount(g)))
+  vAttrNames <- setdiff(list.vertex.attributes(g), "label") 
+  nodesAtt <- data.frame(sapply(vAttrNames, function(attr) sub("&", "&",get.vertex.attribute(g, attr))))
+  eAttrNames <- setdiff(list.edge.attributes(g), "weight") 
+  edgesAtt <- data.frame(sapply(eAttrNames, function(attr) sub("&", "&",get.edge.attribute(g, attr))))
+  graphAtt <- sapply(list.graph.attributes(g), function(attr) sub("&", "&",get.graph.attribute(g, attr)))
+  output <- write.gexf(nodes, edges, 
+                       edgesWeight=E(g)$weight,
+                       edgesAtt = edgesAtt,
+                       nodesAtt = nodesAtt,
+                       meta=c(list(creator="Gopalakrishna Palem", description="igraph -> gexf converted file", keywords="igraph, gexf, R, rgexf"), graphAtt))
+  print(output, filepath, replace=T)
+}
+   
+ saveAsGEXF(g,filepath="C:/Users/mpeipoch/Documents/dataAnalysis/R/Rstudio/biofilm MARC project/proba.gexf")
+
+```

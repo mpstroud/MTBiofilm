@@ -25,20 +25,14 @@ by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
 
 ```
 
-looped groups for repetitive operations
+tableplot package for rapid assessment
 ```{r}
-df <- surf_enviro # or other
- IDs<-unique(df$river)# or other
- results<- data.frame(matrix(0,ncol=1,nrow=10)) # or other
-    for (i in 1:length(IDs)){ 
-    temp <- df[df$river==IDs[i],]
-    results[i,1] <- mean(temp[,15]) # or other
-    }
-names<-as.data.frame(IDs)
-results<-cbind(results,names)
-results
+library(tabplot)
+surf_enviro2 = subset.data.frame(enviro, water_type=="surface", select = c(-water_type,-Lat,-Lon,-benthic_type))
+sub<- surf_enviro2[,2:18]
 
-tapply(surf_enviro$doc, surf_enviro$river, mean) #if very basic operations are needed
+tableplot(sub, fig.height=5)
+
 
 ```
 
