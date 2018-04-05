@@ -7,9 +7,18 @@ output: html_document
 data(BCI)
 library(vegan)
 data <- read.table("clipboard", header=T,sep="\t")
-rar<- rrarefy(data,10000)
+rar<- rrarefy(data,9800)
 rar<-as.data.frame(as.matrix(rar))
 rarefied_table<-write.csv(rar,file="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/rarefied_table.csv")
 
+
 ```
 
+merge datasets
+```{r}
+a <- read.table("clipboard", header=T,sep="\t")
+b <- read.table("clipboard", header=T,sep="\t")
+out<-merge(a,b,by = c("id"))
+rarefied_table<-write.csv(out,file="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/out.csv")
+
+```
