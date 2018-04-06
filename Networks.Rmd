@@ -21,7 +21,8 @@ data = read.csv("genus_rarefied.csv")
 
 Alternative data input
 ```{r}
-data <-read.table("clipboard", header = T, sep = "\t") #ONLY in case need to copy/paste dataset in
+data <-read.table("clipboard", header = T, sep = "\t")
+attributes <-read.table("clipboard", header = T, sep = "\t")#ONLY in case need to copy/paste dataset in
 ```
 
 Network construction; end of it is an igraph file.
@@ -35,7 +36,7 @@ cocp<-as.data.frame(coc$P)
 subcoc<-list()
 nom<-as.vector(colnames(cocr))
 for(i in 1:ncol(cocr)){
-  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.6 & cocp[,i] < 0.01, select = c(nom[[i]]))
+  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.8 & cocp[,i] < 0.01, select = c(nom[[i]]))
 } #this will generate a list of as many elements as OTUs, each element contains a vector with only OTU correlations above the predetermined cutoff (r=0.6 and p-value 0.5 here)
 
 subcoc2<- matrix(0,ncol=3,nrow=0)
@@ -55,6 +56,7 @@ links<-subcoc2[,c("sp2","sp1","cor")]
 colnames(links)<-c("from", "to","weight")
 nodes <-as.data.frame(unique(subcoc2[,3]))
 colnames(nodes)<-c("id") #final edits to node and edge datasets
+nodes<-merge(nodes,attributes,by = c("id"))
 
 nrow(nodes); length(unique(nodes$id))
 nrow(links); nrow(unique(links[,c("from", "to")]))
