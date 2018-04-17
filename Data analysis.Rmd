@@ -28,10 +28,9 @@ by_habitat = subset.data.frame(surf_enviro, habitat=="PN", select = -habitat)
 tableplot package for rapid assessment
 ```{r}
 library(tabplot)
-surf_enviro2 = subset.data.frame(enviro, water_type=="surface", select = c(-water_type,-Lat,-Lon,-benthic_type))
-sub<- surf_enviro2[,2:18]
+surf_enviro2 = subset.data.frame(surf_enviro, select = c(zone,ammonium,nitrate,phosphate,tn,tp,don,np,tnp,chl))
 
-tableplot(sub, fig.height=5)
+tableplot(surf_enviro2, fig.height=5,sortCol = 2)
 
 
 ```
