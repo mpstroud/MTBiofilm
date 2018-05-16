@@ -5,11 +5,11 @@ output: html_document
 Necessary packages
 ```{r}
 #necessary packages:
-if (!require(data.table)) library("data.table")
-if (!require(dplyr)) library("dplyr")
-if (!require(igraph)) library("igraph")
-if (!require(Hmisc)) library("Hmisc")
-if (!require(rgexf)) library("rgexf")
+library("data.table")
+library("dplyr")
+library("igraph")
+library("Hmisc")
+library("rgexf")
 ```
 
 Data input
@@ -29,7 +29,7 @@ Network construction; end of it is an igraph file.
 ```{r}
 #cor fucntion to generate all potential correlations between OTUs
 coc<- rcorr(as.matrix(data), type=c("spearman")) 
-coc$r<-abs(coc$r) #take negative values out to apply a cutoff of >0.65 Spearman rank correlation
+coc$r<-abs(coc$r) #take negatve values out to apply a cutoff of >0.65 Spearman rank correlation
 cocr<-as.data.frame(coc$r)
 cocp<-as.data.frame(coc$P)
 
@@ -62,8 +62,7 @@ nrow(nodes); length(unique(nodes$id))
 nrow(links); nrow(unique(links[,c("from", "to")]))
 
 #build the network
-g <- graph_from_data_frame(d=links, vertices=nodes, directed=T) 
-plot(g, edge.arrow.size=.4,vertex.label=NA)
+g <- graph.data.frame(d=links, vertices=nodes, directed=T) 
 
 ```
 
@@ -97,7 +96,7 @@ saveAsGEXF = function(g, filepath="proba.gexf")
   print(output, filepath, replace=T)
 }
    
- saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/a.temp/network.gexf")
+ saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
 
 ```
 
