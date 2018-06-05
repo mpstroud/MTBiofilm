@@ -5,11 +5,12 @@ output: html_document
 Necessary packages
 ```{r}
 #necessary packages:
-if (!require(data.table)) library("data.table")
-if (!require(dplyr)) library("dplyr")
-if (!require(igraph)) library("igraph")
-if (!require(Hmisc)) library("Hmisc")
-if (!require(rgexf)) library("rgexf")
+library("data.table")
+library("dplyr")
+library("igraph")
+library("stringi")
+library("Hmisc")
+library("rgexf")
 ```
 
 Data input
@@ -97,7 +98,7 @@ saveAsGEXF = function(g, filepath="proba.gexf")
   print(output, filepath, replace=T)
 }
    
- saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/a.temp/network.gexf")
+ saveAsGEXF(g,filepath="C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
 
 ```
 
