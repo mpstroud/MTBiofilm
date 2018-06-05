@@ -8,6 +8,7 @@ Necessary packages
 library("data.table")
 library("dplyr")
 library("igraph")
+library("stringi")
 library("Hmisc")
 library("rgexf")
 ```
@@ -96,7 +97,9 @@ saveAsGEXF = function(g, filepath="proba.gexf")
   print(output, filepath, replace=T)
 }
    
- saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
+
+ saveAsGEXF(g,filepath="C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
+
 
 ```
 

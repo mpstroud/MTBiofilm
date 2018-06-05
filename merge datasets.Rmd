@@ -1,0 +1,11 @@
+---
+title: "coocurrence"
+output: html_document
+---
+
+igraph
+```{r setup, include=FALSE}
+data <-read.table("clipboard", header = T, sep = "\t")
+
+```
+
