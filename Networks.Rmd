@@ -37,7 +37,7 @@ cocp<-as.data.frame(coc$P)
 subcoc<-list()
 nom<-as.vector(colnames(cocr))
 for(i in 1:ncol(cocr)){
-  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.8 & cocp[,i] < 0.01, select = c(nom[[i]]))
+  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.6 & cocp[,i] < 0.01, select = c(nom[[i]]))
 } #this will generate a list of as many elements as OTUs, each element contains a vector with only OTU correlations above the predetermined cutoff (r=0.6 and p-value 0.5 here)
 
 subcoc2<- matrix(0,ncol=3,nrow=0)
@@ -98,7 +98,7 @@ saveAsGEXF = function(g, filepath="proba.gexf")
 }
    
 
- saveAsGEXF(g,filepath="C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
+ saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
 
 
 ```
