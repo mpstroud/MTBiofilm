@@ -9,3 +9,29 @@ data <-read.table("clipboard", header = T, sep = "\t")
 
 ```
 
+```{r}
+library(lme4)
+library(nlme)
+library(piecewiseSEM)
+```
+```{r}
+lmm.data<-read.table("clipboard",header=TRUE, sep="\t")
+```
+```{r}
+#BIOFILM DIVERSITY-------------------------------------------------------------------------------------------
+#all variables
+lmm.res1 <- lmer(formula = response ~ oxygen + oxygen_sat +	temp +	dic +	doc	+ chloride +	ammonium +	
+                                    srp	+ np + nitrate	+	dry_mass +	afdm +	perc_om  + (1|region/river/zone/hab), 
+                                    data = lmm.data, REML = FALSE)
+summary(lmm.res1)
+sem.model.fits(lmm.res1)
+
+#selecting fixed effects
+lmm.res2 <- lmer(formula = response ~  ammonium + np + temp + (1|river/zone/hab), data = lmm.data, REML = FALSE)
+anova(lmm.res1,lmm.res2)
+summary(lmm.res2)
+anova(lmm.res2)
+plot(residuals(lmm.res2))
+sem.model.fits(lmm.res2)
+coef(lmm.res2)
+```
