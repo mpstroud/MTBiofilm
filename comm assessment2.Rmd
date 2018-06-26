@@ -1,0 +1,73 @@
+---
+title: "Data analysis"
+output: pdf_document
+---
+
+NDMS with variable surfing
+```{r}
+
+getwd()
+species = read.csv("input_data.csv")
+
+species <- species[-c(55), ]
+species_NMDS <- species[,6:760]
+rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+
+
+example_NMDS=metaMDS(species_NMDS,k=2,trymax=10000)
+par(mfrow=c(1,1))
+figNMDS<-ordiplot(example_NMDS,type="n",xlim = c(-0.5,0.5),ylim = c(-0.5,0.5))
+text(figNMDS, "sites", col="blue", cex=0.7)
+
+ordisurf(example_NMDS,species$tn,main="",col="forestgreen")
+orditorp(example_NMDS,display="sites",col="grey30",air=0.1,cex=1)
+anosim(species_NMDS, species$hab, permutations=999)
+
+stressplot(example_NMDS)
+plot(example_NMDS)
+```
+
+Alpha and beta diversity
+```{r}
+#Diversity metrics--------------------------------------------------------------------------------------
+library(vegan)
+library(betapart)
+#shanon diversity
+spec <- species[,6:760]
+shannon<-diversity(spec, index = "shannon")
+shannon<-as.vector(shannon)
+shannon<-as.data.frame(shannon)
+
+plot(shannon)
+diversity<-cbind(shannon,species[,1:6])
+plot(diversity$river,diversity$shannon)
+plot(results$river,results$var,ylim=c(0,4000))
+
+#for betadiversity
+presabs<-ifelse(spec>0,1,0)
+dist<-beta.pair(presabs, index.family="sorensen")
+# To get the pairwise Jaccard index turnover partition between communities, type: dist[[1]]. 
+#To get nestedness partition, type: dist[[2]]. To get all beta diversity: dist[[3]].
+
+# If we want to compare the beta diversities of communities aggregated by groups
+#we can use "betadisper" analysis.
+groups <- factor(species$region)
+bd<-betadisper(dist[[3]],groups)
+plot(bd)
+boxplot(bd)
+anova(bd)
+
+
+# Using bray-curtis dissimilarity and thus abudnacne data as well
+#The function will calculate beta diversity (and its partitions) based on Bray-Curtis dissimilarity index.
+
+dist<-bray.part(spec)
+groups <- factor(species$zone)
+bd<-betadisper(dist[[3]],groups)
+plot(bd, main = "bray curtis; difference in zone by 0.01206")
+boxplot(bd)
+anova(bd)
+
+#try beta.div() to get SCBD and LCBD
+```
+
