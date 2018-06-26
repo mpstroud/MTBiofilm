@@ -9,3 +9,77 @@ data <-read.table("clipboard", header = T, sep = "\t")
 
 ```
 
+```{r}
+library(lme4)
+library(nlme)
+library(piecewiseSEM)
+```
+```{r}
+lmm_data<-read.table("clipboard",header=TRUE, sep="\t")
+```
+```{r}
+#BIOFILM DIVERSITY---------------------------------------------------------------------------------------
+#-----------------------------------------Mixed-Effects model for alpha diversity
+#(Fixed=physicochemistry and Random=Location)
+
+basic<- lm(alpha_div ~ oxygen_sat+doc+chloride+ammonium+phosphate+
+                        np+nitrate+tn+tp+don+afdm+chl,data=lmm_data)
+summary(basic)
+
+M1<- lme(alpha_div ~ oxygen_sat+doc+chloride+ammonium+phosphate+
+                        np+nitrate+tn+tp+don+afdm+chl,data=lmm_data,random=~1|river/hab ,method="REML",na.action=na.omit)
+summary(M1)  #remove zone, almost no explanatory power
+
+M2 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~NITret|site,method="REML",weights=varIdent(form=~1|date))
+M3 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~temp|site,method="REML",weights=varIdent(form=~1|date))
+M4 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~flow|site,method="REML",weights=varIdent(form=~1|date))
+M5 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~PREflow|site,method="REML",weights=varIdent(form=~1|date))
+M6 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~MAXflow|site,method="REML",weights=varIdent(form=~1|date))
+M7 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~Suflow|site,method="REML",weights=varIdent(form=~1|date))
+anova(M1,M3,M4,M5,M6,M7)
+anova(M1,M4) #OK, will keep it simple with just intercept|site
+
+M1 <- lme(SRPret ~ NITret+temp+flow+PREflow+MAXflow+Suflow,data=nested,random=~1|site,method="ML",weights=varIdent(form=~1|date))#now we fit with ML instead of restricted
+summary(M1)
+M2 <- lme(SRPret ~ NITret+temp+flow,data=nested,random=~1|site,method="ML",weights=varIdent(form=~1|date))
+anova(M1,M2)
+summary(M2) 
+
+#refit the model with REML
+M1 <- lme(SRPret ~ NITret+temp+flow,data=nested,random=~1|site,method="REML",weights=varIdent(form=~1|date))#now we fit with ML instead of restricted
+summary(M1)
+
+plot(residuals(M1))
+sem.model.fits(M1)
+coef(M1)
+#Check the fitted vs residuals one more time:
+plot(M1,select=c(1)) 
+#let's validate the model:
+plot(fitted(M1),resid(M1))
+plot(nested$site, resid(M1)) #looks acceptable
+#check for temporal correlation:
+plot(ACF(M1),alpha=0.05) #strong correlation at 1 and 3, let's see if we can fixed.
+M1 <- lme(SRPret ~ NITret+temp+flow,data=nested,random=~1|site,method="REML",weights=varIdent(form=~1|date))#now we fit with ML instead of restricted
+summary(M1)
+M2 <- update(M1,correlation=corAR1(0.3))
+
+
+#MCMCglmm
+M1 <- MCMCglmm(fixed=SRPret ~ NITret+temp+flow,random=~site,data=nested)#now we fit with ML instead of restricted
+summary(M1)
+plot(M1)
+
+reg_temp<-predict.MCMCglmm(M1)
+pre_temp<-predict.MCMCglmm(M1,nested2)
+plot(reg_temp,pre_temp)
+
+
+#selecting fixed effects
+lmm.res2 <- lmer(formula = response ~  ammonium + np + temp + (1|river/zone/hab), data = lmm.data, REML = FALSE)
+anova(lmm.res1,lmm.res2)
+summary(lmm.res2)
+anova(lmm.res2)
+plot(residuals(lmm.res2))
+sem.model.fits(lmm.res2)
+coef(lmm.res2)
+```
